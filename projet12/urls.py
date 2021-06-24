@@ -26,6 +26,6 @@ urlpatterns = [
     path('api/login/', TokenObtainPairView.as_view(), name='login'),
     path('api/login/refresh/', TokenRefreshView.as_view(), name='refresh'),
 
-    path('api/', include("crm.urls")),
-    path('api/', include("authentication.urls")),
+    #path('api/', include("crm.urls")),
+    #path('api/', include("authentication.urls")),
 ]
