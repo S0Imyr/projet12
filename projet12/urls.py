@@ -17,9 +17,14 @@ from django.contrib import admin
 from django.urls import path, include
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from authentication import views
+from rest_framework.routers import DefaultRouter
 
+router = DefaultRouter()
+router.register(r'users', views.UserViewSet, basename='user')
 
 urlpatterns = [
+    path('', include(router.urls)),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
 

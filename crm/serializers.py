@@ -8,6 +8,7 @@ class ClientSerializer(serializers.ModelSerializer):
         fields = ['id', 'first_name', 'last_name', 'email', 'phone', 'mobile', 'company_name', 'date_created', 'date_updated', 'sales_contact', 'active']
         read_only_fields = ['id']
 
+
 class ContractSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contract
