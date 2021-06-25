@@ -1,8 +1,14 @@
-from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
+from rest_framework.permissions import AllowAny
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer, RegisterSerializer
 from .models import User
+
+
+class Register(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
