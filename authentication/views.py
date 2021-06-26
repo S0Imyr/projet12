@@ -1,8 +1,10 @@
 from rest_framework import viewsets, generics
 from rest_framework.permissions import AllowAny
 
-from .serializers import UserSerializer, RegisterSerializer
+from .serializers import GroupSerializer, UserSerializer, RegisterSerializer
 from .models import User
+
+from django.contrib.auth.models import Group
 
 
 class Register(generics.CreateAPIView):
@@ -17,3 +19,8 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     serializer_class = UserSerializer
     queryset = User.objects.all()
+
+
+class GroupViewSet(viewsets.ModelViewSet):
+    serializer_class = GroupSerializer
+    queryset = Group.objects.all()
