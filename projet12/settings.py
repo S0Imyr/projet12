@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'projet12.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'projet12',
+        'NAME': 'projet12db',
         'USER': 'Raphael',
         'PASSWORD': '',
         'HOST': '',
