@@ -7,7 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.models import User
 
 
-class AuthTests(APITestCase):
+class UserTests(APITestCase):
     client = APIClient()
 
     @classmethod
@@ -25,11 +25,26 @@ class AuthTests(APITestCase):
         tokens = RefreshToken.for_user(user)
         access_token = str(tokens.access_token)
         return access_token
+    
+    def test_user_list(self):
+        access_token = self.login_token(user=self.admin)
+        uri = reverse('user-list')
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    def test_register(self):
-        uri = reverse('register')
-        post_data = dict(
-            username="username", email="email@test.com",
-            first_name="first_name", last_name="last_name", password="password")
-        response = self.client.post(uri, data=post_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+    def test_user_list_unauthorized(self):
+        uri = reverse('user-list')
+        response = self.client.get(uri)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED, response.content)
+
+    def test_create_user(self):
+        pass
+
+    def test_retrieve_user(self):
+        pass
+
+    def test_update_user(self):
+        pass
+
+    def test_delete_user(self):
+        pass

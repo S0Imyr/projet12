@@ -26,10 +26,18 @@ class AuthTests(APITestCase):
         access_token = str(tokens.access_token)
         return access_token
 
-    def test_register(self):
-        uri = reverse('register')
-        post_data = dict(
-            username="username", email="email@test.com",
-            first_name="first_name", last_name="last_name", password="password")
-        response = self.client.post(uri, data=post_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+
+    def test_event_list(self):
+        pass
+
+    def test_create_event(self):
+        pass
+
+    def test_retrieve_event(self):
+        pass
+
+    def test_update_event(self):
+        pass
+
+    def test_delete_event(self):
+        pass
