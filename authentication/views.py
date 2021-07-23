@@ -1,3 +1,4 @@
+from authentication.permissions import ManagementPermission
 from rest_framework import viewsets, generics
 from rest_framework.permissions import AllowAny
 
@@ -19,8 +20,10 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     serializer_class = UserSerializer
     queryset = User.objects.all()
+    permission_classes=[ManagementPermission]
 
 
 class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
+    permission_classes=[ManagementPermission]
