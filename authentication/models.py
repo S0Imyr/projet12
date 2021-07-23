@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 
 
 class User(AbstractUser):
@@ -8,7 +8,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['last_name', 'email']
+    REQUIRED_FIELDS = ['last_name', 'groups', 'email']
 
     def __str__(self):
         return self.username
