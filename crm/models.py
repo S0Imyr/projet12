@@ -47,6 +47,7 @@ class Status(models.Model):
 
     class Meta:
         ordering = ['-title']
+        verbose_name_plural = "statuses"
 
 
 class Event(models.Model):
