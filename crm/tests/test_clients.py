@@ -27,7 +27,10 @@ class AuthTests(APITestCase):
         return access_token
 
     def test_client_list(self):
-        pass
+        access_token = self.login_token(user=self.admin)
+        uri = reverse('client-list')
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
     def test_create_client(self):
         pass

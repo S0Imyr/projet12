@@ -26,9 +26,12 @@ class AuthTests(APITestCase):
         access_token = str(tokens.access_token)
         return access_token
 
-
     def test_event_list(self):
-        pass
+        access_token = self.login_token(user=self.admin)
+        uri = reverse('event-list')
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
 
     def test_create_event(self):
         pass
