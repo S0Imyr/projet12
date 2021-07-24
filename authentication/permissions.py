@@ -1,6 +1,4 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
-from django.shortcuts import get_object_or_404
-from .models import User, Group
+from rest_framework.permissions import BasePermission
 
 
 class ManagementPermission(BasePermission):
