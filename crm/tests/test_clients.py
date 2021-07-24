@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.urls import reverse
 
 from rest_framework import status
@@ -55,39 +54,11 @@ class ClientTests(APITestCase):
             active=False),
             ]
 
-        cls.contracts = [
-            Contract.objects.create(
-                sales_contact=cls.salers[0], client=cls.clients[0], signed=True,
-                amount=80000, payment_due=datetime(year=2021, month=5, day=21)
-            ),
-            Contract.objects.create(
-                sales_contact=cls.salers[0], client=cls.clients[1], signed=False,
-                amount=40000, payment_due=datetime(year=2022, month=5, day=21)
-            ),
-        ]
-
-        cls.statuses = [
-            Status.objects.create(title="En préparation", description="L'évenement est en préparation"),
-            Status.objects.create(title="En cours", description="L'événement est en cours"),
-            Status.objects.create(title="Fini", description="L'évenement est clos"),
-            Status.objects.create(title="Annulé", description="L'évenement a été annulé")
-        ]
-
-        cls.events = [
-            Event.objects.create(
-                title='Event1', client=cls.clients[0], support_contact=cls.support_users[0], 
-                event_status=cls.statuses[0]),
-            Event.objects.create(
-                title='Event2', client=cls.clients[0], support_contact=cls.support_users[0], 
-                event_status=cls.statuses[2]),
-        ]
-
     @classmethod
     def tearDownClass(cls):
-        cls.admin = None
-        User.objects.all().delete()
         Group.objects.all().delete()
-
+        User.objects.all().delete()
+        Client.objects.all().delete()
 
     def login_token(self, user):
         self.client.force_login(user=user)

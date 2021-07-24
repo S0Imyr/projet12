@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.models import User, Group
 
-import datetime
+from datetime import datetime
 
 from crm.models import Client, Contract
 
@@ -70,8 +70,10 @@ class ContractTests(APITestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.admin = None
+        Group.objects.all().delete()
         User.objects.all().delete()
+        Client.objects.all().delete()
+        Contract.objects.all().delete()
 
     def login_token(self, user):
         self.client.force_login(user=user)
@@ -79,12 +81,11 @@ class ContractTests(APITestCase):
         access_token = str(tokens.access_token)
         return access_token
     
-    def test_contract_list(self):
-        access_token = self.login_token(user=self.admin)
+    def test_contract_list_as_manager(self):
+        access_token = self.login_token(user=self.management_users[0])
         uri = reverse('contract-list')
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
-
 
     def test_create_contract(self):
         pass

@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.models import User, Group
 
-import datetime
+from datetime import datetime
 
 from crm.models import Client, Contract, Status, Event
 
@@ -97,8 +97,8 @@ class EventTests(APITestCase):
         access_token = str(tokens.access_token)
         return access_token
 
-    def test_event_list(self):
-        access_token = self.login_token(user=self.admin)
+    def test_event_list_as_manager(self):
+        access_token = self.login_token(user=self.management_users[0])
         uri = reverse('event-list')
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
