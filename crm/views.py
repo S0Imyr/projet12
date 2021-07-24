@@ -1,3 +1,4 @@
+from crm.permissions import ClientPermission
 from django.shortcuts import render
 from rest_framework import viewsets
 
@@ -11,6 +12,7 @@ class ClientViewSet(viewsets.ModelViewSet):
     """
     serializer_class = ClientSerializer
     queryset = Client.objects.all()
+    permission_classes = [ClientPermission]
 
 
 class ContractViewSet(viewsets.ModelViewSet):
