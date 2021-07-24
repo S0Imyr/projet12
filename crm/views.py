@@ -1,4 +1,4 @@
-from crm.permissions import ClientPermission
+from crm.permissions import ClientPermission, ContractPermission, EventPermission, StatusPermission
 from django.shortcuts import render
 from rest_framework import viewsets
 
@@ -21,6 +21,7 @@ class ContractViewSet(viewsets.ModelViewSet):
     """
     serializer_class = ContractSerializer
     queryset = Contract.objects.all()
+    permission_classes = [ContractPermission]
 
 
 class EventViewSet(viewsets.ModelViewSet):
@@ -29,6 +30,7 @@ class EventViewSet(viewsets.ModelViewSet):
     """
     serializer_class = EventSerializer
     queryset = Event.objects.all()
+    permission_classes = [EventPermission]
 
 
 class StatusViewSet(viewsets.ModelViewSet):
@@ -37,3 +39,4 @@ class StatusViewSet(viewsets.ModelViewSet):
     """
     serializer_class = StatusSerializer
     queryset = Status.objects.all()
+    permission_classes = [StatusPermission]
