@@ -58,11 +58,11 @@ class ClientTests(APITestCase):
         cls.contracts = [
             Contract.objects.create(
                 sales_contact=cls.salers[0], client=cls.clients[0], signed=True,
-                amount=80000, payment_due_date=datetime(year=2021, month=5, day=21)
+                amount=80000, payment_due=datetime(year=2021, month=5, day=21)
             ),
             Contract.objects.create(
-                sales_contact=cls.salers[0], client=cls.clients[1], Signed=False,
-                amount=40000, payment_due_date=datetime(year=2022, month=5, day=21)
+                sales_contact=cls.salers[0], client=cls.clients[1], signed=False,
+                amount=40000, payment_due=datetime(year=2022, month=5, day=21)
             ),
         ]
 
@@ -75,10 +75,10 @@ class ClientTests(APITestCase):
 
         cls.events = [
             Event.objects.create(
-                tite='Event1', client=cls.clients[0], support_contact=cls.support_users[0], 
+                title='Event1', client=cls.clients[0], support_contact=cls.support_users[0], 
                 event_status=cls.statuses[0]),
             Event.objects.create(
-                tite='Event2', client=cls.clients[0], support_contact=cls.support_users[0], 
+                title='Event2', client=cls.clients[0], support_contact=cls.support_users[0], 
                 event_status=cls.statuses[2]),
         ]
 
@@ -123,9 +123,8 @@ class ClientTests(APITestCase):
         access_token = self.login_token(user=self.management_users[0])
         uri = reverse('client-list')
         post_data = dict(
-            username="username", email="email@test.com",
-            first_name="first_name", last_name="last_name",
-            group=self.groups[0])
+            first_name="test", last_name="client", email="test1client@test.com",
+            phone=1, mobile=1, company_name='CompanyCorp1')
         response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
 
@@ -133,9 +132,8 @@ class ClientTests(APITestCase):
         access_token = self.login_token(user=self.salers[0])
         uri = reverse('client-list')
         post_data = dict(
-            username="username", email="email@test.com",
-            first_name="first_name", last_name="last_name",
-            group=self.groups[0])
+            first_name="test", last_name="client", email="test1client@test.com",
+            phone=1, mobile=1, company_name='CompanyCorp1')
         response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
 
@@ -143,9 +141,8 @@ class ClientTests(APITestCase):
         access_token = self.login_token(user=self.support_users[0])
         uri = reverse('client-list')
         post_data = dict(
-            username="username", email="email@test.com",
-            first_name="first_name", last_name="last_name",
-            group=self.groups[0])
+            first_name="test", last_name="client", email="test1client@test.com",
+            phone=1, mobile=1, company_name='CompanyCorp1')
         response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
@@ -153,84 +150,78 @@ class ClientTests(APITestCase):
         access_token = self.login_token(user=self.guests[0])
         uri = reverse('client-list')
         post_data = dict(
-            username="username", email="email@test.com",
-            first_name="first_name", last_name="last_name",
-            group=self.groups[0])
+            first_name="test", last_name="client", email="test1client@test.com",
+            phone=1, mobile=1, company_name='CompanyCorp1')
         response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
     def test_retrieve_client_as_manager(self):
         access_token = self.login_token(user=self.management_users[0])
-        uri = reverse('client-detail', args=[self.guests[1].id])
+        uri = reverse('client-detail', args=[self.clients[0].id])
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
     def test_retrieve_client_as_saler(self):
-        access_token = self.login_token(user=self.salers[0])
-        uri = reverse('client-detail', args=[self.guests[1].id])
+        access_token = self.login_token(user=self.salers[1])
+        uri = reverse('client-detail', args=[self.clients[0].id])
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
     def test_retrieve_client_list_as_support(self):
         access_token = self.login_token(user=self.support_users[0])
-        uri = reverse('client-detail', args=[self.guests[1].id])
+        uri = reverse('client-detail', args=[self.clients[0].id])
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
     def test_retrieve_client_list_as_guest(self):
         access_token = self.login_token(user=self.guests[0])
-        uri = reverse('client-detail', args=[self.guests[1].id])
+        uri = reverse('client-detail', args=[self.clients[0].id])
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
     def test_update_client_as_manager(self):
         access_token = self.login_token(user=self.management_users[0])
-        uri = reverse('client-detail')
+        uri = reverse('client-detail', args=[self.clients[0].id])
         put_data = dict(
-            username="username", email="email@test.com",
-            first_name="first_name", last_name="last_name",
-            group=self.groups[0])
+            first_name="test", last_name="client", email="test1client@test.com",
+            phone=1, mobile=1, company_name='CompanyCorp1')
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
 
     def test_update_client_as_saler(self):
         access_token = self.login_token(user=self.salers[0])
-        uri = reverse('client-detail')
+        uri = reverse('client-detail', args=[self.clients[0].id])
         put_data = dict(
-            username="username", email="email@test.com",
-            first_name="first_name", last_name="last_name",
-            group=self.groups[0])
+            first_name="test", last_name="client", email="test1client@test.com",
+            phone=1, mobile=1, company_name='CompanyCorp1')
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
     def test_update_client_as_saler_contact(self):
         access_token = self.login_token(user=self.salers[1])
-        uri = reverse('client-detail')
+        uri = reverse('client-detail', args=[self.clients[0].id])
         put_data = dict(
-            username="username", email="email@test.com",
-            first_name="first_name", last_name="last_name",
-            group=self.groups[0])
+            first_name="test", last_name="client", email="test1client@test.com",
+            phone=1, mobile=1, company_name='CompanyCorp1')
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
 
 
     def test_update_client_as_support(self):
         access_token = self.login_token(user=self.support_users[0])
-        uri = reverse('client-detail')
+        uri = reverse('client-detail', args=[self.clients[0].id])
         put_data = dict(
-            username="username", email="email@test.com",
-            first_name="first_name", last_name="last_name",
-            group=self.groups[0])
+            first_name="test", last_name="client", email="test1client@test.com",
+            phone=1, mobile=1, company_name='CompanyCorp1')
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
     def test_update_client_as_guest(self):
         access_token = self.login_token(user=self.guests[0])
-        uri = reverse('client-detail')
+        uri = reverse('client-detail', args=[self.clients[0].id])
         put_data = dict(
-            first_name="first_name", last_name="last_name", email="email@test.com",
-            phone=12, mobile=12, company_name='CompanyCorp',
-            )
+            first_name="test", last_name="client", email="test1client@test.com",
+            phone=1, mobile=1, company_name='CompanyCorp1')
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
