@@ -43,6 +43,7 @@ class UserTests(APITestCase):
     @classmethod
     def tearDownClass(cls):
         User.objects.all().delete()
+        Group.objects.all().delete()
 
     def login_token(self, user):
         self.client.force_login(user=user)
