@@ -33,7 +33,9 @@ class UserTests(APITestCase):
             management_user.groups.set([cls.groups[2]])
         cls.guests = [
             User.objects.create_user(username="Guest1", email="guest1@test.com",
-            password="teamguests1", first_name="User1", last_name="Guest")
+            password="teamguests1", first_name="User1", last_name="Guest"),
+            User.objects.create_user(username="Guest2", email="guest2@test.com",
+            password="teamguests2", first_name="User2", last_name="Guest")
             ]
         for guest in cls.guests:
             guest.groups.set([cls.groups[3]])
@@ -78,6 +80,7 @@ class UserTests(APITestCase):
             group=self.groups[0])
         response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+        self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
 
     def test_create_user_as_support(self):
         access_token = self.login_token(user=self.support_users[0])
@@ -88,6 +91,7 @@ class UserTests(APITestCase):
             group=self.groups[0])
         response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+        self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
 
     def test_create_user_as_guest(self):
         access_token = self.login_token(user=self.guests[0])
@@ -98,13 +102,108 @@ class UserTests(APITestCase):
             group=self.groups[0])
         response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
-        print(response.content)
+        self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
 
-    def test_retrieve_user(self):
-        pass
+    def test_retrieve_user_as_manager(self):
+        access_token = self.login_token(user=self.management_users[0])
+        uri = reverse('user-detail', args=[self.guests[1].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    def test_update_user(self):
-        pass
 
-    def test_delete_user(self):
-        pass
+    def test_retrieve_user_as_saler(self):
+        access_token = self.login_token(user=self.salers[0])
+        uri = reverse('user-detail', args=[self.guests[1].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+        self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
+
+
+    def test_retrieve_user_as_support(self):
+        access_token = self.login_token(user=self.support_users[0])
+        uri = reverse('user-detail', args=[self.guests[1].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+        self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
+
+    def test_retrieve_user_as_guest(self):
+        access_token = self.login_token(user=self.guests[0])
+        uri = reverse('user-detail', args=[self.guests[1].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+        self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
+
+    def test_update_user_as_manager(self):
+        access_token = self.login_token(user=self.management_users[0])
+        uri = reverse('user-detail', args=[self.guests[1].id])
+        put_data = dict(
+            username="username", email="email@test.com",
+            first_name="first_name", last_name="last_name",
+            group=self.groups[0])
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+    def test_update_user_as_saler(self):
+        access_token = self.login_token(user=self.salers[0])
+        uri = reverse('user-detail', args=[self.guests[1].id])
+        put_data = dict(
+            username="username", email="email@test.com",
+            first_name="first_name", last_name="last_name",
+            group=self.groups[0])
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+        self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
+
+
+    def test_update_user_as_support(self):
+        access_token = self.login_token(user=self.support_users[0])
+        uri = reverse('user-detail', args=[self.guests[1].id])
+        put_data = dict(
+            username="username", email="email@test.com",
+            first_name="first_name", last_name="last_name",
+            group=self.groups[0])
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+        self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
+
+
+    def test_update_user_as_guest(self):
+        access_token = self.login_token(user=self.guests[0])
+        uri = reverse('user-detail', args=[self.guests[1].id])
+        put_data = dict(
+            username="username", email="email@test.com",
+            first_name="first_name", last_name="last_name",
+            group=self.groups[0])
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+        self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
+
+    def test_delete_user_as_manager(self):
+        access_token = self.login_token(user=self.management_users[0])
+        uri = reverse('user-detail', args=[self.guests[1].id])
+        response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.content)
+
+    def test_delete_user_as_saler(self):
+        access_token = self.login_token(user=self.salers[0])
+        uri = reverse('user-detail', args=[self.guests[1].id])
+        response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+        self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
+
+
+    def test_delete_user_as_support(self):
+        access_token = self.login_token(user=self.support_users[0])
+        uri = reverse('user-detail', args=[self.guests[1].id])
+        response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+        self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
+
+
+    def test_delete_user_as_guest(self):
+        access_token = self.login_token(user=self.guests[0])
+        uri = reverse('user-detail', args=[self.guests[1].id])
+        response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+        self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
+

@@ -9,9 +9,9 @@ from django.contrib.auth.models import Group
 
 
 class Register(generics.CreateAPIView):
-    permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
 
 
 class UserViewSet(viewsets.ModelViewSet):
