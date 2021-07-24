@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.urls import reverse
 
 from rest_framework import status
@@ -5,6 +6,7 @@ from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.models import User, Group
+from crm.models import Client, Contract, Event, Status
 
 
 class ClientTests(APITestCase):
@@ -21,7 +23,9 @@ class ClientTests(APITestCase):
             support_user.groups.set([cls.groups[0]])
         cls.salers = [
             User.objects.create_user(username="Saler1", email="saler1@test.com",
-            password="teamsales1", first_name="User1", last_name="Sales")
+            password="teamsales1", first_name="User1", last_name="Sales"),
+            User.objects.create_user(username="Saler2", email="saler2@test.com",
+            password="teamsales2", first_name="User2", last_name="Sales")
             ]
         for saler in cls.salers:
             saler.groups.set([cls.groups[1]])
@@ -39,6 +43,44 @@ class ClientTests(APITestCase):
             ]
         for guest in cls.guests:
             guest.groups.set([cls.groups[3]])
+
+        cls.clients = [
+            Client.objects.create(
+            first_name="Active", last_name="client1", email="client1@test.com",
+            phone=12, mobile=12, company_name='CompanyCorp1', sales_contact=cls.salers[0],
+            active=True),
+            Client.objects.create(
+            first_name="Unactive", last_name="client2", email="client2@test.com",
+            phone=12, mobile=12, company_name='CompanyCorp2',
+            active=False),
+            ]
+
+        cls.contracts = [
+            Contract.objects.create(
+                sales_contact=cls.salers[0], client=cls.clients[0], signed=True,
+                amount=80000, payment_due_date=datetime(year=2021, month=5, day=21)
+            ),
+            Contract.objects.create(
+                sales_contact=cls.salers[0], client=cls.clients[1], Signed=False,
+                amount=40000, payment_due_date=datetime(year=2022, month=5, day=21)
+            ),
+        ]
+
+        cls.statuses = [
+            Status.objects.create(title="En préparation", description="L'évenement est en préparation"),
+            Status.objects.create(title="En cours", description="L'événement est en cours"),
+            Status.objects.create(title="Fini", description="L'évenement est clos"),
+            Status.objects.create(title="Annulé", description="L'évenement a été annulé")
+        ]
+
+        cls.events = [
+            Event.objects.create(
+                tite='Event1', client=cls.clients[0], support_contact=cls.support_users[0], 
+                event_status=cls.statuses[0]),
+            Event.objects.create(
+                tite='Event2', client=cls.clients[0], support_contact=cls.support_users[0], 
+                event_status=cls.statuses[2]),
+        ]
 
     @classmethod
     def tearDownClass(cls):
@@ -117,11 +159,81 @@ class ClientTests(APITestCase):
         response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
-    def test_retrieve_client(self):
-        pass
+    def test_retrieve_client_as_manager(self):
+        access_token = self.login_token(user=self.management_users[0])
+        uri = reverse('client-detail', args=[self.guests[1].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    def test_update_client(self):
-        pass
+    def test_retrieve_client_as_saler(self):
+        access_token = self.login_token(user=self.salers[0])
+        uri = reverse('client-detail', args=[self.guests[1].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+    def test_retrieve_client_list_as_support(self):
+        access_token = self.login_token(user=self.support_users[0])
+        uri = reverse('client-detail', args=[self.guests[1].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+    def test_retrieve_client_list_as_guest(self):
+        access_token = self.login_token(user=self.guests[0])
+        uri = reverse('client-detail', args=[self.guests[1].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_update_client_as_manager(self):
+        access_token = self.login_token(user=self.management_users[0])
+        uri = reverse('client-detail')
+        put_data = dict(
+            username="username", email="email@test.com",
+            first_name="first_name", last_name="last_name",
+            group=self.groups[0])
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+
+    def test_update_client_as_saler(self):
+        access_token = self.login_token(user=self.salers[0])
+        uri = reverse('client-detail')
+        put_data = dict(
+            username="username", email="email@test.com",
+            first_name="first_name", last_name="last_name",
+            group=self.groups[0])
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+
+    def test_update_client_as_saler_contact(self):
+        access_token = self.login_token(user=self.salers[1])
+        uri = reverse('client-detail')
+        put_data = dict(
+            username="username", email="email@test.com",
+            first_name="first_name", last_name="last_name",
+            group=self.groups[0])
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+
+
+    def test_update_client_as_support(self):
+        access_token = self.login_token(user=self.support_users[0])
+        uri = reverse('client-detail')
+        put_data = dict(
+            username="username", email="email@test.com",
+            first_name="first_name", last_name="last_name",
+            group=self.groups[0])
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_update_client_as_guest(self):
+        access_token = self.login_token(user=self.guests[0])
+        uri = reverse('client-detail')
+        put_data = dict(
+            first_name="first_name", last_name="last_name", email="email@test.com",
+            phone=12, mobile=12, company_name='CompanyCorp',
+            )
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
 
     def test_delete_client(self):
         pass
