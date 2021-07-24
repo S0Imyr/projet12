@@ -186,10 +186,10 @@ class ClientTests(APITestCase):
             first_name="test", last_name="client", email="test1client@test.com",
             phone=1, mobile=1, company_name='CompanyCorp1')
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
     def test_update_client_as_saler(self):
-        access_token = self.login_token(user=self.salers[0])
+        access_token = self.login_token(user=self.salers[1])
         uri = reverse('client-detail', args=[self.clients[0].id])
         put_data = dict(
             first_name="test", last_name="client", email="test1client@test.com",
@@ -198,13 +198,13 @@ class ClientTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
     def test_update_client_as_saler_contact(self):
-        access_token = self.login_token(user=self.salers[1])
+        access_token = self.login_token(user=self.salers[0])
         uri = reverse('client-detail', args=[self.clients[0].id])
         put_data = dict(
             first_name="test", last_name="client", email="test1client@test.com",
             phone=1, mobile=1, company_name='CompanyCorp1')
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
 
     def test_update_client_as_support(self):
