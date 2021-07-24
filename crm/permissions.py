@@ -8,14 +8,14 @@ class ClientPermission(BasePermission):
         if request.user.groups.filter(name="Guest").exists():
             return False
         else:
-            if request.method == 'POST':
+            if request.method in SAFE_METHODS:
+                return True
+            elif request.method == 'POST' or request.method == 'PUT':
                 if request.user.groups.filter(name="Management").exists() or \
                 request.user.groups.filter(name="Sales").exists():
                     return True
                 else:
                     return False
-            if request.method in SAFE_METHODS:
-                return True
 
     def has_object_permission(self, request, view, obj):
         if request.user.groups.filter(name="Management").exists():
@@ -23,8 +23,8 @@ class ClientPermission(BasePermission):
         elif request.user.groups.filter(name="Sales").exists():
             if request.method in SAFE_METHODS:
                 return True
-            elif request.method == 'UPDATE':
-                return request.user in obj.sales_contact
+            elif request.method == 'PUT':
+                return request.user == obj.sales_contact
             else:
                 return False
         elif request.user.groups.filter(name="Support").exists():
