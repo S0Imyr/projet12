@@ -57,6 +57,24 @@ class UserTests(APITestCase):
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
+    def test_user_list_as_saler(self):
+        access_token = self.login_token(user=self.salers[0])
+        uri = reverse('user-list')
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_user_list_as_support(self):
+        access_token = self.login_token(user=self.support_users[0])
+        uri = reverse('user-list')
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_user_list_as_guest(self):
+        access_token = self.login_token(user=self.guests[0])
+        uri = reverse('user-list')
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
     def test_user_list_unauthenticated(self):
         uri = reverse('user-list')
         response = self.client.get(uri)
@@ -111,14 +129,12 @@ class UserTests(APITestCase):
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-
     def test_retrieve_user_as_saler(self):
         access_token = self.login_token(user=self.salers[0])
         uri = reverse('user-detail', args=[self.guests[1].id])
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
         self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
-
 
     def test_retrieve_user_as_support(self):
         access_token = self.login_token(user=self.support_users[0])
@@ -155,7 +171,6 @@ class UserTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
         self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
 
-
     def test_update_user_as_support(self):
         access_token = self.login_token(user=self.support_users[0])
         uri = reverse('user-detail', args=[self.guests[1].id])
@@ -166,7 +181,6 @@ class UserTests(APITestCase):
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
         self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
-
 
     def test_update_user_as_guest(self):
         access_token = self.login_token(user=self.guests[0])
@@ -207,4 +221,3 @@ class UserTests(APITestCase):
         response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
         self.assertEqual(response.content, b'{"detail":"Restricted to management team"}')
-
