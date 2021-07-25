@@ -16,6 +16,8 @@ class ClientPermission(BasePermission):
                     return True
                 else:
                     return False
+            else:
+                return request.user.groups.filter(name="Management").exists()
 
     def has_object_permission(self, request, view, obj):
         if request.user.groups.filter(name="Management").exists():
