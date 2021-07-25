@@ -197,5 +197,26 @@ class ClientTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
 
-    def test_delete_client(self):
-        pass
+    def test_delete_client_as_manager(self):
+        access_token = self.login_token(user=self.management_users[0])
+        uri = reverse('client-detail', args=[self.clients[0].id])
+        response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.content)
+
+    def test_delete_client_as_saler(self):
+        access_token = self.login_token(user=self.salers[1])
+        uri = reverse('client-detail', args=[self.clients[0].id])
+        response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_delete_client_list_as_support(self):
+        access_token = self.login_token(user=self.support_users[0])
+        uri = reverse('client-detail', args=[self.clients[0].id])
+        response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_delete_client_list_as_guest(self):
+        access_token = self.login_token(user=self.guests[0])
+        uri = reverse('client-detail', args=[self.clients[0].id])
+        response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
