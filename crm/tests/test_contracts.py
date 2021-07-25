@@ -8,7 +8,7 @@ from authentication.models import User, Group
 
 from datetime import datetime
 
-from crm.models import Client, Contract
+from crm.models import Client, Contract, Status, Event
 
 
 class ContractTests(APITestCase):
@@ -74,6 +74,8 @@ class ContractTests(APITestCase):
         User.objects.all().delete()
         Client.objects.all().delete()
         Contract.objects.all().delete()
+        Status.objects.all().delete()
+        Event.objects.all().delete()
 
     def login_token(self, user):
         self.client.force_login(user=user)
@@ -147,17 +149,24 @@ class ContractTests(APITestCase):
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    def test_retrieve_contract_as_saler(self):
+    def test_retrieve_contract_as_saler_not_contact(self):
         access_token = self.login_token(user=self.salers[1])
         uri = reverse('contract-detail', args=[self.contracts[0].id])
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_retrieve_contract_as_saler_contact(self):
+        access_token = self.login_token(user=self.salers[0])
+        uri = reverse('contract-detail', args=[self.contracts[0].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
 
     def test_retrieve_contract_list_as_support(self):
         access_token = self.login_token(user=self.support_users[0])
         uri = reverse('contract-detail', args=[self.contracts[0].id])
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
     def test_retrieve_contract_list_as_guest(self):
         access_token = self.login_token(user=self.guests[0])
@@ -174,7 +183,7 @@ class ContractTests(APITestCase):
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    def test_update_contract_as_saler(self):
+    def test_update_contract_as_saler_not_contact(self):
         access_token = self.login_token(user=self.salers[1])
         uri = reverse('contract-detail', args=[self.contracts[0].id])
         put_data = dict(
