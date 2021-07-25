@@ -7,7 +7,7 @@ from authentication.models import User, Group
 
 from datetime import datetime
 
-from crm.models import Client, Contract, Status
+from crm.models import Client, Contract, Event, Status
 
 
 class StatusTests(APITestCase):
@@ -68,10 +68,9 @@ class StatusTests(APITestCase):
         ]
 
         cls.statuses = [
-            Status.objects.create(title="En préparation", description="L'évenement est en préparation"),
-            Status.objects.create(title="En cours", description="L'événement est en cours"),
-            Status.objects.create(title="Fini", description="L'évenement est clos"),
-            Status.objects.create(title="Annulé", description="L'évenement a été annulé")
+            Status.objects.create(title="Coming", description="The event is comming"),
+            Status.objects.create(title="In progress", description="The event is in progress"),
+            Status.objects.create(title="Over", description="The event is finished")
         ]
 
     @classmethod
@@ -81,6 +80,7 @@ class StatusTests(APITestCase):
         Client.objects.all().delete()
         Contract.objects.all().delete()
         Status.objects.all().delete()
+        Event.objects.all().delete()
 
     def login_token(self, user):
         self.client.force_login(user=user)
