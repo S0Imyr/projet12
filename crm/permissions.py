@@ -68,10 +68,39 @@ class ContractPermission(BasePermission):
 
 class EventPermission(BasePermission):
     def has_permission(self, request, view):
-        return super().has_permission(request, view)
+        if request.user.groups.filter(name="Management").exists():
+            return True
+        elif request.user.groups.filter(name="Sales").exists() or request.user.groups.filter(name="Support").exists():
+            if request.method == 'POST':
+                return request.user.groups.filter(name="Sales").exists()
+            elif request.method == 'PUT' or request.method == 'GET':
+                return True
+            else:
+                return False
+        else:
+            return False
 
     def has_object_permission(self, request, view, obj):
-        return super().has_object_permission(request, view, obj)
+        if request.user.groups.filter(name="Management").exists():
+            return True
+        elif request.user.groups.filter(name="Sales").exists():
+            if request.method == 'PUT' or request.method == 'GET':
+                if request.user == obj.client.sales_contact:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        elif request.user.groups.filter(name="Support").exists():
+            if request.method == 'PUT' or request.method == 'GET':
+                if request.user == obj.support_contact:
+                    return not obj.event_status.id == 3
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
 
 
 class StatusPermission(BasePermission):
