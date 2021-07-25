@@ -52,7 +52,7 @@ class Status(models.Model):
 
 class Event(models.Model):
     title = models.CharField(max_length=50)
-    contract_id = models.OneToOneField(to=Contract, on_delete=models.CASCADE)
+    contract = models.OneToOneField(to=Contract, on_delete=models.CASCADE)
     client = models.ForeignKey(to=Client, on_delete=models.SET_NULL, blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
