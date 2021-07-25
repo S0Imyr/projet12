@@ -62,6 +62,10 @@ class EventTests(APITestCase):
                 amount=80000, payment_due=datetime(year=2021, month=5, day=21)
             ),
             Contract.objects.create(
+                sales_contact=cls.salers[1], client=cls.clients[0], signed=True,
+                amount=50000, payment_due=datetime(year=2021, month=7, day=5)
+            ),
+            Contract.objects.create(
                 sales_contact=cls.salers[0], client=cls.clients[1], signed=False,
                 amount=40000, payment_due=datetime(year=2022, month=5, day=21)
             ),
@@ -76,10 +80,10 @@ class EventTests(APITestCase):
 
         cls.events = [
             Event.objects.create(
-                title='Event1', client=cls.clients[0], support_contact=cls.support_users[0], 
-                event_status=cls.statuses[0]),
+                title='Event1', contract_id=cls.contracts[0].id, client=cls.clients[0],
+                support_contact=cls.support_users[0], event_status=cls.statuses[0]),
             Event.objects.create(
-                title='Event2', client=cls.clients[0], support_contact=cls.support_users[0], 
+                title='Event2', contract_id=cls.contracts[2].id, client=cls.clients[0], support_contact=cls.support_users[0], 
                 event_status=cls.statuses[2]),
         ]
     @classmethod
@@ -103,14 +107,169 @@ class EventTests(APITestCase):
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    def test_create_event(self):
-        pass
+    def test_event_list_as_saler(self):
+        access_token = self.login_token(user=self.salers[0])
+        uri = reverse('event-list')
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    def test_retrieve_event(self):
-        pass
+    def test_event_list_as_support(self):
+        access_token = self.login_token(user=self.support_users[0])
+        uri = reverse('event-list')
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    def test_update_event(self):
-        pass
+    def test_event_list_as_guest(self):
+        access_token = self.login_token(user=self.guests[0])
+        uri = reverse('event-list')
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
-    def test_delete_event(self):
-        pass
+    def test_create_event_as_manager(self):
+        access_token = self.login_token(user=self.management_users[0])
+        uri = reverse('event-list')
+        post_data = dict(
+            contract=self.contracts[1].id, title='EventTestTitle',
+            client=self.clients[0].id, support_contact=self.support_users[0].id, 
+            event_status=self.statuses[2].id, attendees=5000,
+            event_date=datetime(year=2022, month=5, day=21), notes="")
+        response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+
+    def test_create_event_as_saler(self):
+        access_token = self.login_token(user=self.salers[0])
+        uri = reverse('event-list')
+        post_data = dict(
+            contract=self.contracts[1].id, title='EventTestTitle',
+            client=self.clients[0].id, support_contact=self.support_users[0].id, 
+            event_status=self.statuses[2].id, attendees=5000,
+            event_date=datetime(year=2022, month=5, day=21), notes="")
+        response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+
+    def test_create_event_as_support(self):
+        access_token = self.login_token(user=self.support_users[0])
+        uri = reverse('event-list')
+        post_data = dict(
+            contract=self.contracts[1].id, title='EventTestTitle',
+            client=self.clients[0].id, support_contact=self.support_users[0].id, 
+            event_status=self.statuses[2].id, attendees=5000,
+            event_date=datetime(year=2022, month=5, day=21), notes="")
+        response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_create_event_as_guest(self):
+        access_token = self.login_token(user=self.guests[0])
+        uri = reverse('event-list')
+        post_data = dict(
+            contract=self.contracts[1].id, title='EventTestTitle',
+            client=self.clients[0].id, support_contact=self.support_users[0].id, 
+            event_status=self.statuses[2].id, attendees=5000,
+            event_date=datetime(year=2022, month=5, day=21), notes="")
+        response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_retrieve_event_as_manager(self):
+        access_token = self.login_token(user=self.management_users[0])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+    def test_retrieve_event_as_saler(self):
+        access_token = self.login_token(user=self.salers[1])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+    def test_retrieve_event_list_as_support(self):
+        access_token = self.login_token(user=self.support_users[0])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+    def test_retrieve_event_list_as_guest(self):
+        access_token = self.login_token(user=self.guests[0])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_update_event_as_manager(self):
+        access_token = self.login_token(user=self.management_users[0])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        put_data = dict(
+            contract=self.contracts[1].id, title='EventTestTitle',
+            client=self.clients[0].id, support_contact=self.support_users[0].id, 
+            event_status=self.statuses[2].id, attendees=5000,
+            event_date=datetime(year=2022, month=5, day=21), notes="")
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+    def test_update_event_as_saler(self):
+        access_token = self.login_token(user=self.salers[1])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        put_data = dict(
+            contract=self.contracts[1].id, title='EventTestTitle',
+            client=self.clients[0].id, support_contact=self.support_users[0].id, 
+            event_status=self.statuses[2].id, attendees=5000,
+            event_date=datetime(year=2022, month=5, day=21), notes="")
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_update_event_as_saler_contact(self):
+        access_token = self.login_token(user=self.salers[0])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        put_data = dict(
+            contract=self.contracts[1].id, title='EventTestTitle',
+            client=self.clients[0].id, support_contact=self.support_users[0].id, 
+            event_status=self.statuses[2].id, attendees=5000,
+            event_date=datetime(year=2022, month=5, day=21), notes="")
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+
+    def test_update_event_as_support(self):
+        access_token = self.login_token(user=self.support_users[0])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        put_data = dict(
+            contract=self.contracts[1].id, title='EventTestTitle',
+            client=self.clients[0].id, support_contact=self.support_users[0].id, 
+            event_status=self.statuses[2].id, attendees=5000,
+            event_date=datetime(year=2022, month=5, day=21), notes="")
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_update_event_as_guest(self):
+        access_token = self.login_token(user=self.guests[0])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        put_data = dict(
+            contract=self.contracts[1].id, title='EventTestTitle',
+            client=self.clients[0].id, support_contact=self.support_users[0].id, 
+            event_status=self.statuses[2].id, attendees=5000,
+            event_date=datetime(year=2022, month=5, day=21), notes="")
+        response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+
+    def test_delete_event_as_manager(self):
+        access_token = self.login_token(user=self.management_users[0])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.content)
+
+    def test_delete_event_as_saler(self):
+        access_token = self.login_token(user=self.salers[1])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_delete_event_list_as_support(self):
+        access_token = self.login_token(user=self.support_users[0])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_delete_event_list_as_guest(self):
+        access_token = self.login_token(user=self.guests[0])
+        uri = reverse('event-detail', args=[self.events[0].id])
+        response = self.client.delete(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
