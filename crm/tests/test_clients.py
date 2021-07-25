@@ -7,6 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.models import User, Group
 from crm.models import Client, Contract, Event, Status
 
+from datetime import datetime
 
 class ClientTests(APITestCase):
     client = APIClient()
@@ -16,7 +17,11 @@ class ClientTests(APITestCase):
         cls.groups = [Group.objects.create(name='Support'), Group.objects.create(name='Sales'), Group.objects.create(name='Management'), Group.objects.create(name='Guest')]
         cls.support_users = [
             User.objects.create_user(username="Support1", email="support1@test.com",
-            password="teamsupport1", first_name="User1", last_name="Support")
+            password="teamsupport1", first_name="User1", last_name="Support"),
+            User.objects.create_user(username="Support2", email="support2@test.com",
+            password="teamsupport2", first_name="User2", last_name="Support"),
+            User.objects.create_user(username="Support3", email="support3@test.com",
+            password="teamsupport3", first_name="User3", last_name="Support")
             ]
         for support_user in cls.support_users:
             support_user.groups.set([cls.groups[0]])
@@ -24,7 +29,9 @@ class ClientTests(APITestCase):
             User.objects.create_user(username="Saler1", email="saler1@test.com",
             password="teamsales1", first_name="User1", last_name="Sales"),
             User.objects.create_user(username="Saler2", email="saler2@test.com",
-            password="teamsales2", first_name="User2", last_name="Sales")
+            password="teamsales2", first_name="User2", last_name="Sales"),
+            User.objects.create_user(username="Saler3", email="saler3@test.com",
+            password="teamsales3", first_name="User3", last_name="Sales")
             ]
         for saler in cls.salers:
             saler.groups.set([cls.groups[1]])
@@ -54,11 +61,44 @@ class ClientTests(APITestCase):
             active=False),
             ]
 
+        cls.contracts = [
+            Contract.objects.create(
+                sales_contact=cls.salers[0], client=cls.clients[1], signed=False,
+                amount=40000, payment_due=datetime(year=2022, month=5, day=21)
+            ),
+            Contract.objects.create(
+                sales_contact=cls.salers[0], client=cls.clients[0], signed=True,
+                amount=80000, payment_due=datetime(year=2021, month=5, day=21)
+            ),
+            Contract.objects.create(
+                sales_contact=cls.salers[1], client=cls.clients[0], signed=True,
+                amount=50000, payment_due=datetime(year=2021, month=7, day=5)
+            ),
+        ]
+
+        cls.statuses = [
+            Status.objects.create(title="Coming", description="The event is comming"),
+            Status.objects.create(title="In progress", description="The event is in progress"),
+            Status.objects.create(title="Over", description="The event is finished")
+        ]
+
+        cls.events = [
+            Event.objects.create(
+                title='Event1', contract_id=cls.contracts[0].id, client=cls.clients[0],
+                support_contact=cls.support_users[0], event_status=cls.statuses[0]),
+            Event.objects.create(
+                title='Event2', contract_id=cls.contracts[2].id, client=cls.clients[0],
+                support_contact=cls.support_users[0], event_status=cls.statuses[2]),
+        ]
+
     @classmethod
     def tearDownClass(cls):
         Group.objects.all().delete()
         User.objects.all().delete()
         Client.objects.all().delete()
+        Contract.objects.all().delete()
+        Status.objects.all().delete()
+        Event.objects.all().delete()
 
     def login_token(self, user):
         self.client.force_login(user=user)
@@ -132,19 +172,31 @@ class ClientTests(APITestCase):
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    def test_retrieve_client_as_saler(self):
+    def test_retrieve_client_as_saler_not_contact(self):
+        access_token = self.login_token(user=self.salers[2])
+        uri = reverse('client-detail', args=[self.clients[0].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_retrieve_client_as_saler_contact(self):
         access_token = self.login_token(user=self.salers[1])
         uri = reverse('client-detail', args=[self.clients[0].id])
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    def test_retrieve_client_list_as_support(self):
+    def test_retrieve_client_list_as_support_not_contact(self):
+        access_token = self.login_token(user=self.support_users[2])
+        uri = reverse('client-detail', args=[self.clients[0].id])
+        response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+    def test_retrieve_client_as_support_contact(self):
         access_token = self.login_token(user=self.support_users[0])
         uri = reverse('client-detail', args=[self.clients[0].id])
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    def test_retrieve_client_list_as_guest(self):
+    def test_retrieve_client_as_guest(self):
         access_token = self.login_token(user=self.guests[0])
         uri = reverse('client-detail', args=[self.clients[0].id])
         response = self.client.get(uri, HTTP_AUTHORIZATION=access_token)
@@ -159,8 +211,8 @@ class ClientTests(APITestCase):
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
-    def test_update_client_as_saler(self):
-        access_token = self.login_token(user=self.salers[1])
+    def test_update_client_as_saler_not_contact(self):
+        access_token = self.login_token(user=self.salers[2])
         uri = reverse('client-detail', args=[self.clients[0].id])
         put_data = dict(
             first_name="test", last_name="client", email="test1client@test.com",
