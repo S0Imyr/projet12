@@ -29,7 +29,6 @@ class ClientPermission(BasePermission):
                     sales_contacts = []
                     for contract in contracts:
                         sales_contacts.append(contract.sales_contact)
-                    print('Sales contact', sales_contacts)
                     return request.user in sales_contacts
             else:
                 return False
@@ -39,7 +38,6 @@ class ClientPermission(BasePermission):
                 support_contacts = []
                 for event in events:
                     support_contacts.append(event.support_contact)
-                print('Support contact', support_contacts)
                 return request.user in support_contacts
             else:
                 return False
