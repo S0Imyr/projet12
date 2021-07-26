@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.models import User, Group
 
-from datetime import datetime, timezone
+from datetime import date
 
 from crm.models import Client, Contract, Status, Event
 
@@ -62,15 +62,15 @@ class EventTests(APITestCase):
         cls.contracts = [
             Contract.objects.create(
                 sales_contact=cls.salers[0], client=cls.clients[1], signed=False,
-                amount=40000, payment_due=datetime(2022, 5, 21, 20, 8, 7, 127325, tzinfo=timezone.utc)
+                amount=40000, payment_due=date(2022, 5, 21)
             ),
             Contract.objects.create(
                 sales_contact=cls.salers[0], client=cls.clients[0], signed=True,
-                amount=80000, payment_due=datetime(2021, 5, 21, 20, 8, 7, 127325, tzinfo=timezone.utc)
+                amount=80000, payment_due=date(2021, 5, 21)
             ),
             Contract.objects.create(
                 sales_contact=cls.salers[1], client=cls.clients[0], signed=True,
-                amount=50000, payment_due=datetime(2021, 7, 5, 20, 8, 7, 127325, tzinfo=timezone.utc)
+                amount=50000, payment_due=date(2021, 7, 5)
             ),
         ]
 
@@ -135,7 +135,7 @@ class EventTests(APITestCase):
             contract=self.contracts[1].id, title='EventTestTitle',
             client=self.clients[0].id, support_contact=self.support_users[0].id, 
             event_status=self.statuses[2].id, attendees=5000,
-            event_date=datetime(year=2022, month=5, day=21), notes="")
+            event_date=date(year=2022, month=5, day=21), notes="")
         response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
 
@@ -146,7 +146,7 @@ class EventTests(APITestCase):
             contract=self.contracts[1].id, title='EventTestTitle',
             client=self.clients[0].id, support_contact=self.support_users[0].id, 
             event_status=self.statuses[2].id, attendees=5000,
-            event_date=datetime(year=2022, month=5, day=21), notes="")
+            event_date=date(year=2022, month=5, day=21), notes="")
         response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
 
@@ -157,7 +157,7 @@ class EventTests(APITestCase):
             contract=self.contracts[1].id, title='EventTestTitle',
             client=self.clients[0].id, support_contact=self.support_users[0].id, 
             event_status=self.statuses[2].id, attendees=5000,
-            event_date=datetime(year=2022, month=5, day=21), notes="")
+            event_date=date(year=2022, month=5, day=21), notes="")
         response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
@@ -168,7 +168,7 @@ class EventTests(APITestCase):
             contract=self.contracts[1].id, title='EventTestTitle',
             client=self.clients[0].id, support_contact=self.support_users[0].id, 
             event_status=self.statuses[2].id, attendees=5000,
-            event_date=datetime(year=2022, month=5, day=21), notes="")
+            event_date=date(year=2022, month=5, day=21), notes="")
         response = self.client.post(uri, data=post_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
@@ -215,7 +215,7 @@ class EventTests(APITestCase):
             contract=self.contracts[1].id, title='EventTestTitle',
             client=self.clients[0].id, support_contact=self.support_users[0].id, 
             event_status=self.statuses[2].id, attendees=5000,
-            event_date=datetime(year=2022, month=5, day=21), notes="")
+            event_date=date(year=2022, month=5, day=21), notes="")
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
@@ -226,7 +226,7 @@ class EventTests(APITestCase):
             contract=self.contracts[1].id, title='EventTestTitle',
             client=self.clients[0].id, support_contact=self.support_users[0].id, 
             event_status=self.statuses[2].id, attendees=5000,
-            event_date=datetime(year=2022, month=5, day=21), notes="")
+            event_date=date(year=2022, month=5, day=21), notes="")
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
@@ -237,7 +237,7 @@ class EventTests(APITestCase):
             contract=self.contracts[1].id, title='EventTestTitle',
             client=self.clients[0].id, support_contact=self.support_users[0].id, 
             event_status=self.statuses[2].id, attendees=5000,
-            event_date=datetime(year=2022, month=5, day=21), notes="")
+            event_date=date(year=2022, month=5, day=21), notes="")
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
@@ -248,7 +248,7 @@ class EventTests(APITestCase):
             contract=self.contracts[1].id, title='EventTestTitle',
             client=self.clients[0].id, support_contact=self.support_users[0].id, 
             event_status=self.statuses[2].id, attendees=5000,
-            event_date=datetime(year=2022, month=5, day=21), notes="")
+            event_date=date(year=2022, month=5, day=21), notes="")
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
@@ -259,7 +259,7 @@ class EventTests(APITestCase):
             contract=self.contracts[1].id, title='EventTestTitle',
             client=self.clients[0].id, support_contact=self.support_users[0].id, 
             event_status=self.statuses[2].id, attendees=5000,
-            event_date=datetime(year=2022, month=5, day=21), notes="")
+            event_date=date(year=2022, month=5, day=21), notes="")
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
@@ -270,7 +270,7 @@ class EventTests(APITestCase):
     #         contract=self.contracts[1].id, title='EventTestTitle',
     #         client=self.clients[0].id, support_contact=self.support_users[0].id, 
     #         event_status=self.statuses[2].id, attendees=5000,
-    #         event_date=datetime(year=2021, month=5, day=21), notes="")
+    #         event_date=date(year=2021, month=5, day=21), notes="")
     #     response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
     #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
@@ -281,7 +281,7 @@ class EventTests(APITestCase):
             contract=self.contracts[1].id, title='EventTestTitle',
             client=self.clients[0].id, support_contact=self.support_users[0].id, 
             event_status=self.statuses[2].id, attendees=5000,
-            event_date=datetime(year=2022, month=5, day=21), notes="")
+            event_date=date(year=2022, month=5, day=21), notes="")
         response = self.client.put(uri, data=put_data, HTTP_AUTHORIZATION=access_token)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 

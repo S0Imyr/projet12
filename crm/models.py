@@ -17,7 +17,7 @@ class Client(models.Model):
     REQUIRED_FIELDS = ['last_name', 'email']
 
     def __str__(self):
-        return "{self.last_name}: {self.company_name}"
+        return f"{self.last_name}: {self.company_name}"
     
     class Meta:
         ordering = ['-last_name']
@@ -30,10 +30,10 @@ class Contract(models.Model):
     date_updated = models.DateTimeField(auto_now=True)
     signed = models.BooleanField(default=False)
     amount = models.FloatField(blank=True, null=True)
-    payment_due =  models.DateTimeField("Payment due date", blank=True, null=True)
+    payment_due =  models.DateField("Payment due date", blank=True, null=True)
 
     def __str__(self):
-        return "Contract {self.id} - {client} ({sales_contact})"
+        return f"Contract {self.id} - {self.client} ({self.sales_contact})"
 
     class Meta:
         ordering = ['-date_created']
@@ -59,7 +59,7 @@ class Event(models.Model):
     support_contact = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True)
     event_status = models.ForeignKey(to=Status, on_delete=models.SET_NULL, blank=True, null=True)  ### Default
     attendees = models.IntegerField(blank=True, null=True)
-    event_date = models.DateTimeField(blank=True, null=True)
+    event_date = models.DateField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
     def __str__(self):

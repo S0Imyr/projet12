@@ -7,7 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.models import User, Group
 from crm.models import Client, Contract, Event, Status
 
-from datetime import datetime, timezone
+from datetime import date
 
 class ClientTests(APITestCase):
     client = APIClient()
@@ -64,15 +64,15 @@ class ClientTests(APITestCase):
         cls.contracts = [
             Contract.objects.create(
                 sales_contact=cls.salers[0], client=cls.clients[1], signed=False,
-                amount=40000, payment_due=datetime(2022, 5, 21, 20, 8, 7, 127325, tzinfo=timezone.utc)
+                amount=40000, payment_due=date(2022, 5, 21)
             ),
             Contract.objects.create(
                 sales_contact=cls.salers[0], client=cls.clients[0], signed=True,
-                amount=80000, payment_due=datetime(2021, 5, 21, 20, 8, 7, 127325, tzinfo=timezone.utc)
+                amount=80000, payment_due=date(2021, 5, 21)
             ),
             Contract.objects.create(
                 sales_contact=cls.salers[1], client=cls.clients[0], signed=True,
-                amount=50000, payment_due=datetime(2021, 7, 5, 20, 8, 7, 127325, tzinfo=timezone.utc)
+                amount=50000, payment_due=date(2021, 7, 5)
             ),
         ]
 
