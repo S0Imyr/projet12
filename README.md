@@ -12,7 +12,7 @@ Sur le terminal se placer sur un dossier cible.
 
 Puis suivre les étapes suivantes :
 1. Cloner le dépôt ici présent en tapant: `$ git clone https://github.com/S0Imyr/Projet-12.git`
-2. Accéder au dossier ainsi créé avec la commande : `$ cd Projet12`
+2. Accéder au dossier ainsi créé avec la commande : `$ cd Projet-12`
 3. Créer un environnement virtuel pour le projet avec 
     - `$ python -m venv env` sous windows 
     - ou `$ python3 -m venv env` sous MacOS ou Linux.
@@ -68,7 +68,7 @@ Voici quelques comptes pour explorer :
   - Utilisateur : Support1, 
   Mot de passe : epic-event
 
-    - Utilisateur : Support2, 
+  - Utilisateur : Support2, 
   Mot de passe : epic-event
 
 
