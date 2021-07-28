@@ -36,19 +36,19 @@ Puis suivre les étapes suivantes :
         'PORT': '5432',
     }
 }`
-8. Une nouvelle fois : `$ cd Projet12`
-9. Appliquer les migrations `$ python manage.py migrate`
-10. Alimenter la base de données des utilisateurs `$ python manage.py loaddata authentication/fixtures/authentication.json`
-11. Alimenter la base de données des projets `$ python manage.py loaddata crm/fixtures/crm.json`
 
-En cas de problème d'encodage, ne pas hésiter à utiliser un éditeur pour ouvrir et sauvegarder les fichiers JSON avec l'encodage utf-8. Puis réalimenter (étape 10 et 11).
+8. Appliquer les migrations `$ python manage.py migrate`
+9. Alimenter la base de données des utilisateurs `$ python manage.py loaddata authentication/fixtures/authentication.json`
+10. Alimenter la base de données des projets `$ python manage.py loaddata crm/fixtures/crm.json`
+
+En cas de problème d'encodage, ne pas hésiter à utiliser un éditeur pour ouvrir et sauvegarder les fichiers JSON avec l'encodage utf-8. Puis réalimenter (étape 9 et 10).
 
 ### Lancement du serveur
 Revenir dans le terminal et tapper :
 
-12. Démarrer le serveur avec `$ python manage.py runserver`
+11. Démarrer le serveur avec `$ python manage.py runserver`
 
-Lorsque le serveur fonctionne, après l'étape 12 de la procédure, on peut :
+Lorsque le serveur fonctionne, après l'étape 11 de la procédure, on peut :
  - Se créer un compte avec l'url : [http://127.0.0.1:8000/signup/](http://127.0.0.1:8000/signup/).
  - Obtenir un token avec : [http://127.0.0.1:8000/token/](http://127.0.0.1:8000/api/token/).
 
@@ -72,7 +72,7 @@ Voici quelques comptes pour explorer :
   Mot de passe : epic-event
 
 
-Une fois installé, toutes les étapes ne sont pas nécessaires. Pour les lancements ultérieurs du serveur de l'API, il suffit d'exécuter les étapes 4 et 12 à partir du répertoire racine du projet.
+Une fois installé, toutes les étapes ne sont pas nécessaires. Pour les lancements ultérieurs du serveur de l'API, il suffit d'exécuter les étapes 4 et 11 à partir du répertoire racine du projet.
 
 ## Arrêter le serveur
 
