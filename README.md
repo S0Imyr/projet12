@@ -50,7 +50,7 @@ Revenir dans le terminal et tapper :
 
 Lorsque le serveur fonctionne, après l'étape 11 de la procédure, on peut :
  - Se créer un compte avec l'url : [http://127.0.0.1:8000/signup/](http://127.0.0.1:8000/signup/).
- - Obtenir un token avec : [http://127.0.0.1:8000/token/](http://127.0.0.1:8000/api/token/).
+ - Obtenir un token avec : [http://127.0.0.1:8000/token/](http://127.0.0.1:8000/token/).
 
 Pour les autres endpoints, il faudra fournir le token.
 
